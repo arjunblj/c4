@@ -52,6 +52,9 @@ class RandomAI(Player):
 
 class MinimaxAI(Player):
     """A basic minimax agent.
+
+       The pseudocode/rough outline here was particularly helpful:
+       http://web.cs.swarthmore.edu/~meeden/cs63/f07/minimax.html
     """
 
     def __init__(self, p_num, opp_num, max_depth, type='AI'):
@@ -168,20 +171,23 @@ class MinimaxAI(Player):
                 self.get_opp_player(player), child[1]))
         return alpha
 
-    def value(self, board, player):
+    def value(self, board, player, type='orginary'):
         """Basic heuristic used in evaluation.
         """
 
-        my_fours = self.runs(board, player, 4)
-        my_threes = self.runs(board, player, 3)
-        my_twos = self.runs(board, player, 2)
+        p1_fours = self.runs(board, player, 4)
+        p1_threes = self.runs(board, player, 3)
+        p1_twos = self.runs(board, player, 2)
         opp_fours = self.runs(board, self.get_opp_player(player), 4)
         opp_threes = self.runs(board, self.get_opp_player(player), 3)
         opp_twos = self.runs(board, self.get_opp_player(player), 2)
+
         if opp_fours > 0:
             return -100000
         else:
-            return my_fours*100000 + my_threes*100 + my_twos
+            p1_score_maximization = p1_fours * 100000 + p1_threes * 100 + p1_twos
+            p2_score_minimization = opp_fours * 100 + opp_threes * 10 + opp_twos * 1
+            return p1_score_maximization
 
     def runs(self, board, player, run_len):
         """Check out runs that are used to generate a four length chain.
