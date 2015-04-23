@@ -172,7 +172,8 @@ class MinimaxAI(Player):
         return alpha
 
     def value(self, board, player, type='orginary'):
-        """Basic heuristic used in evaluation.
+        """Basic heuristic used in evaluation. The longer the streak is, the
+           more it is utilized/valued.
         """
 
         p1_fours = self.runs(board, player, 4)

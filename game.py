@@ -30,7 +30,7 @@ class Connect4Game(object):
             p1_name = raw_input('What is Player One\'s name? ')
 
         if p2.type == 'human':
-            p2_name = raw_input('What is Player Two\'s name?')
+            p2_name = raw_input('What is Player Two\'s name? ')
 
         self.player_names = {p1: p1_name if p1_name else 'Jarvis',
                              p2: p2_name if p2_name else 'Optimus Prime',}
