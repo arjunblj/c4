@@ -162,7 +162,7 @@ class MinimaxAI(Player):
         if depth == 0 or len(legal_moves) == 0 or self.game_over(board, last_move):
             return self.value(board, player)
 
-        alpha = -100000000
+        alpha = -99999999
         for child in legal_moves:
             alpha = max(alpha, -self.search(depth-1, copy(child[0]),
                 self.get_opp_player(player), child[1]))
@@ -171,24 +171,20 @@ class MinimaxAI(Player):
     def value(self, board, player):
         """Basic heuristic used in evaluation.
         """
-        opp_fours = self.check_runs(board, self.get_opp_player(player), 4)
 
-        ## No point checking beyond this point.
+        my_fours = self.runs(board, player, 4)
+        my_threes = self.runs(board, player, 3)
+        my_twos = self.runs(board, player, 2)
+        opp_fours = self.runs(board, self.get_opp_player(player), 4)
+        opp_threes = self.runs(board, self.get_opp_player(player), 3)
+        opp_twos = self.runs(board, self.get_opp_player(player), 2)
         if opp_fours > 0:
-            return -10000
+            return -100000
         else:
-            p1_fours = self.check_runs(board, player, 4)
-            p1_threes = self.check_runs(board, player, 3)
-            p1_twos = self.check_runs(board, player, 2)
-            opp_threes = self.check_runs(board, self.get_opp_player(player), 3)
-            opp_twos = self.check_runs(board, self.get_opp_player(player), 2)
-        p1_score_maximization = p1_fours * 100 + p1_threes * 10 + p1_twos * 1
-        p2_score_minimization = opp_fours * 100 + opp_threes * 10 + opp_twos * 1
+            return my_fours*100000 + my_threes*100 + my_twos
 
-        return p1_score_maximization - p2_score_minimization
-
-    def check_runs(self, board, player, run_length):
-        """Checks for runs that are used to generate a four length chain.
+    def runs(self, board, player, run_len):
+        """Check out runs that are used to generate a four length chain.
 
            A bit of a naive check, it just iterates through every single (X, Y)
            coordinate on the board that belongs to the player passed and counts
@@ -198,60 +194,72 @@ class MinimaxAI(Player):
         for x in xrange(len(board)):
             for y in xrange(len(board[0])):
                 if board[x][y] == player:
-                    count += self._horizontal_runs(x, y, board, run_length)
-                    count += self._vertical_runs(x, y, board, run_length)
-                    count += self._diagonal_runs(x, y, board, run_length)
+                    count += self._horizontal_runs(x, y, board, run_len)
+                    count += self._vertical_runs(x, y, board, run_len)
+                    count += self._diagonal_runs(x, y, board, run_len)
         return count
 
-    def _horizontal_runs(self, row, column, board, run_length):
+    def _horizontal_runs(self, row, column, board, run_len):
         """Check horizontal runs for the specified length.
         """
         in_a_row = 0
         for y in xrange(column, len(board[0])):
             if board[row][y] == board[row][column]:
                 in_a_row += 1
-        if in_a_row >= run_length:
+            else:
+                break
+        if in_a_row >= run_len:
             return 1
         else:
             return 0
 
-    def _vertical_runs(self, row, column, board, run_length):
+    def _vertical_runs(self, row, column, board, run_len):
         """Check vertical runs for the specified length.
         """
         in_a_row = 0
         for x in xrange(row, len(board)):
             if board[x][column] == board[row][column]:
                 in_a_row += 1
-        if in_a_row >= run_length:
+            else:
+                break
+        if in_a_row >= run_len:
             return 1
         else:
             return 0
 
-    def _diagonal_runs(self, row, column, board, run_length):
+    def _diagonal_runs(self, row, column, board, run_len):
         """Evaluate diagonals both ways (with a positive and negative slope).
         """
-        total_runs, in_a_row, y = 0, 0, column
+        total_runs = 0
+        in_a_row = 0
+        y = column
+
         for x in xrange(row, len(board)):
-            ## Important so we don't try to access an index out of bounds.
             if y > len(board):
                 break
             if board[x][y] == board[row][column]:
                 in_a_row += 1
+            else:
+                break
             y += 1
 
-        if in_a_row >= run_length:
+        if in_a_row >= run_len:
             total_runs += 1
 
         ## Now we have to check diagonals on the other end.
-        in_a_row, y = 0, column
+        in_a_row = 0
+        y = column
         for x in xrange(row, -1, -1):
             if y > len(board):
                 break
-            if board[x][y] == board[row][column]:
+            elif board[x][y] == board[row][column]:
                 in_a_row += 1
-            y += 1 # increment column when row is incremented
+            else:
+                break
+            y += 1
 
-        if in_a_row >= run_length:
+        if in_a_row >= run_len:
             total_runs += 1
 
         return total_runs
+
