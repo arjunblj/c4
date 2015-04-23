@@ -94,7 +94,7 @@ class MinimaxAI(Player):
             legal_moves[column] = - self.search(self.max_depth - 1, temp,
                 self.get_opp_player(self.player), last_move)
 
-        best_alpha = -99999999
+        best_alpha = -10000
         best_move = None
         moves = legal_moves.items()
         random.shuffle(moves)
@@ -111,16 +111,16 @@ class MinimaxAI(Player):
         """
         print board
 
-        free_index = sum(board[:, column] == 0) - 1
-        if free_index == -1:
+        column_space_available = sum(board[:, column] == 0) - 1
+        if column_space_available == -1:
             return False
 
         if player == 1:
-            board[free_index, column] = 1
+            board[column_space_available, column] = 1
         else:
-            board[free_index, column] = 2
+            board[column_space_available, column] = 2
 
-        return (board, (free_index, column))
+        return (board, (column_space_available, column))
 
     def game_over(self, board, last_move):
         """Returns whether the game is won.
@@ -165,7 +165,7 @@ class MinimaxAI(Player):
         if depth == 0 or len(legal_moves) == 0 or self.game_over(board, last_move):
             return self.value(board, player)
 
-        alpha = -99999999
+        alpha = -10000
         for child in legal_moves:
             alpha = max(alpha, -self.search(depth-1, copy(child[0]),
                 self.get_opp_player(player), child[1]))
@@ -183,9 +183,9 @@ class MinimaxAI(Player):
         opp_twos = self.runs(board, self.get_opp_player(player), 2)
 
         if opp_fours > 0:
-            return -100000
+            return -1000
         else:
-            p1_score_maximization = p1_fours * 100000 + p1_threes * 100 + p1_twos
+            p1_score_maximization = p1_fours * 1000 + p1_threes * 1 + p1_twos * 0.1
             p2_score_minimization = opp_fours * 100 + opp_threes * 10 + opp_twos * 1
             return p1_score_maximization
 
